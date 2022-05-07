@@ -6,11 +6,11 @@
 ### 流程
 1. 注册企业微信->建立应用->设置自己外部沟通权限
 2. 修改目录下的**config.php**填上刚刚注册好的的信息
-3. 上传代码到服务器或虚拟主机或severless
+3. 上传代码到服务器或虚拟主机
 
 
 推送例子
->http://PATH/push.php?title=test&message=message
+>http://PATH/push.php?title=test&message=message&token=
 
 ### 特性:
 * 易配置

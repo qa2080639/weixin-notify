@@ -6,18 +6,13 @@ require 'config.php';
 
 
 if (!empty($config['token'])) {
-    if (!isset($_REQUEST['token']) && $_REQUEST['token'] != $config['token']) {
-        exit('参数错误');
+    if (!isset($_REQUEST['token']) || $_REQUEST['token'] != $config['token']) {
+        exit('token错误');
     }
 }
 
-//如果不存在文本就禁止提交
-if (!isset($_REQUEST['title'])) {
-    exit('标题不能为空');
-}
-
 // 频繁推送拦截
-$title = $_REQUEST['title'];
+$title = empty($_REQUEST['title']) ? '新提醒' : $_REQUEST['title'];
 $message = isset($_REQUEST['message']) ? $_REQUEST['message'] : '';
 $md5 = md5($message);
 $now = time();
@@ -49,10 +44,9 @@ function getDataArray($MsgArray)
 {
     $data = array(
         //要发送给的用户，@all为全部
-//        "touser"   => "@all",
-        "touser"   => "LuoYuWen",
+        "touser"   => "@all",
         //"toparty" => "@all",
-        //"totag" => "@all", 
+        //"totag" => "@all",
         "msgtype"  => "textcard",
         //改成自己的应用id
         "agentid"  => $MsgArray["agentid"],
@@ -99,26 +93,22 @@ $MsgArray = array();
 
 //推送的应用id
 $MsgArray["agentid"] = $config['agentid'];
-
-//标题是可选值
-if (!isset($_REQUEST['title'])) {
-    $MsgArray["title"] = "新提醒";
-} else {
-    $MsgArray["title"] = $_REQUEST['title'];
-}
+//推送的标题
+$MsgArray["title"] = $title;
 //推送的文本内容
-$MsgArray["msg"] = isset($_REQUEST['message']) ? $_REQUEST['message'] : '';
+$MsgArray["msg"] = $message;
 
 //推送时间
-$MsgArray["time"] = date('Y-m-d h:i:s', time());
+$MsgArray["time"] = date('Y-m-d H:i:s', time());
 $MsgArray["url"] = "{$config['domia']}/msg.php?title={$MsgArray["title"]}&time={$MsgArray["time"]}&msg={$MsgArray["msg"]}";
 //转化成json数组让微信可以接收
 $json_data = json_encode(getDataArray($MsgArray));
 //echo $json_data;exit;
 $res = https_request($url, urldecode($json_data));//请求开始
+//var_dump($res);
 $res = json_decode($res, true);
 if ($res['errcode'] == 0 && $res['errcode'] == "ok") {
-    echo "发送成功！<br/>";
+    echo "发送成功！";
 } else {
-    echo "发送失败<br/>";
+    echo "发送失败";
 }
